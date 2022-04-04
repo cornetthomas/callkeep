@@ -640,8 +640,16 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 #endif
     
     AVAudioSession* audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:nil];
+
     [audioSession setMode:AVAudioSessionModeVoiceChat error:nil];
-    
+
+    double sampleRate = 44100.0;
+    [audioSession setPreferredSampleRate:sampleRate error:nil];
+
+    NSTimeInterval bufferDuration = .005;
+    [audioSession setPreferredIOBufferDuration:bufferDuration error:nil];
+    [audioSession setActive:YES error:nil];
 
 }
 
