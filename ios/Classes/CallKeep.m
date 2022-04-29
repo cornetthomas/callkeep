@@ -790,8 +790,21 @@ continueUserActivity:(NSUserActivity *)userActivity
 #ifdef DEBUG
     NSLog(@"[CallKeep][CXProviderDelegate][provider:performAnswerCallAction]");
 #endif
+   // Make sure the audioSession is first set to the default settings, before we elevate the session priority
+    NSError *error;
+    AVAudioSession* audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:nil error:&error];
+
+    if(error){
+        NSLog(@"ERROR: %@", error);
+    }
+    
     [self configureAudioSession];
     [self sendEventWithNameWrapper:CallKeepPerformAnswerCallAction body:@{ @"callUUID": [action.callUUID.UUIDString lowercaseString] }];
+    
+    // Delay fulfil, so connection can be properly setup. 
+    // --  not sure this is required, but leaving as is for now
+    sleep(3);
     [action fulfill];
 }
 
