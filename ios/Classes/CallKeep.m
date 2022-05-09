@@ -804,7 +804,7 @@ continueUserActivity:(NSUserActivity *)userActivity
     
     // Delay fulfil, so connection can be properly setup. 
     // --  not sure this is required, but leaving as is for now
-    sleep(3);
+    //sleep(3);
     [action fulfill];
 }
 
