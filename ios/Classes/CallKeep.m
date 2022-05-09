@@ -803,8 +803,7 @@ continueUserActivity:(NSUserActivity *)userActivity
     [self sendEventWithNameWrapper:CallKeepPerformAnswerCallAction body:@{ @"callUUID": [action.callUUID.UUIDString lowercaseString] }];
     
     // Delay fulfil, so connection can be properly setup. 
-    // --  not sure this is required, but leaving as is for now
-    //sleep(3);
+    sleep(2);
     [action fulfill];
 }
 
