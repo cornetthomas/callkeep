@@ -46,9 +46,9 @@ static CXProvider* sharedProvider;
 
 - (instancetype)init
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][init]");
-#endif
+// #endif
     if (self = [super init]) {
         _delayedEvents = [NSMutableArray array];
     }
@@ -66,9 +66,9 @@ static CXProvider* sharedProvider;
 
 - (void)dealloc
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][dealloc]");
-#endif
+// #endif
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     if (self.callKeepProvider != nil) {
@@ -174,9 +174,9 @@ static CXProvider* sharedProvider;
 
 -(void)setup:(NSDictionary *)options
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][setup] options = %@", options);
-#endif
+// #endif
     _version = [[[NSProcessInfo alloc] init] operatingSystemVersion];
     self.callKeepCallController = [[CXCallController alloc] init];
     NSDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:options];
@@ -276,17 +276,17 @@ static CXProvider* sharedProvider;
 
 -(void) checkIfBusyWithResult:(FlutterResult)result
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][checkIfBusy]");
-#endif
+// #endif
     result(@(self.callKeepCallController.callObserver.calls.count > 0));
 }
 
 -(void) checkSpeakerResult:(FlutterResult)result
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][checkSpeaker]");
-#endif
+// #endif
     NSString *output = [AVAudioSession sharedInstance].currentRoute.outputs.count > 0 ? [AVAudioSession sharedInstance].currentRoute.outputs[0].portType : nil;
     result(@([output isEqualToString:@"Speaker"]));
 }
@@ -309,9 +309,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
        handleType:(NSString *)handleType
             video:(BOOL)video
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][startCall] uuidString = %@", uuidString);
-#endif
+// #endif
     int _handleType = [CallKeep getHandleType:handleType];
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     CXHandle *callHandle = [[CXHandle alloc] initWithType:_handleType value:handle];
@@ -326,9 +326,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 
 -(void) endCall:(NSString *)uuidString
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][endCall] uuidString = %@", uuidString);
-#endif
+// #endif
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     CXEndCallAction *endCallAction = [[CXEndCallAction alloc] initWithCallUUID:uuid];
     CXTransaction *transaction = [[CXTransaction alloc] initWithAction:endCallAction];
@@ -338,9 +338,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 
 -(void) endAllCalls
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][endAllCalls] calls = %@", self.callKeepCallController.callObserver.calls);
-#endif
+// #endif
     for (CXCall *call in self.callKeepCallController.callObserver.calls) {
         CXEndCallAction *endCallAction = [[CXEndCallAction alloc] initWithCallUUID:call.UUID];
         CXTransaction *transaction = [[CXTransaction alloc] initWithAction:endCallAction];
@@ -350,9 +350,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 
 -(void) setOnHold:(NSString *)uuidString shouldHold:(BOOL)shouldHold
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][setOnHold] uuidString = %@, shouldHold = %d", uuidString, shouldHold);
-#endif
+// #endif
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     CXSetHeldCallAction *setHeldCallAction = [[CXSetHeldCallAction alloc] initWithCallUUID:uuid onHold:shouldHold];
     CXTransaction *transaction = [[CXTransaction alloc] init];
@@ -380,9 +380,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 
 -(void) updateDisplay:(NSString *)uuidString displayName:(NSString *)displayName uri:(NSString *)uri
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][updateDisplay] uuidString = %@ displayName = %@ uri = %@", uuidString, displayName, uri);
-#endif
+// #endif
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     CXHandle *callHandle = [[CXHandle alloc] initWithType:CXHandleTypePhoneNumber value:uri];
     CXCallUpdate *callUpdate = [[CXCallUpdate alloc] init];
@@ -393,9 +393,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 
 -(void) setMutedCall:(NSString *)uuidString muted:(BOOL)muted
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][setMutedCall] muted = %i", muted);
-#endif
+// #endif
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     CXSetMutedCallAction *setMutedAction = [[CXSetMutedCallAction alloc] initWithCallUUID:uuid muted:muted];
     CXTransaction *transaction = [[CXTransaction alloc] init];
@@ -405,9 +405,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 
 -(void) sendDTMF:(NSString *)uuidString dtmf:(NSString *)key
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][sendDTMF] key = %@", key);
-#endif
+// #endif
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     CXPlayDTMFCallAction *dtmfAction = [[CXPlayDTMFCallAction alloc] initWithCallUUID:uuid digits:key type:CXPlayDTMFCallActionTypeHardPause];
     CXTransaction *transaction = [[CXTransaction alloc] init];
@@ -418,17 +418,17 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 
 -(BOOL) isCallActive:(NSString *)uuidString
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][isCallActive] uuid = %@", uuidString);
-#endif
+// #endif
     return [CallKeep isCallActive: uuidString];
 }
 
 - (void)requestTransaction:(CXTransaction *)transaction
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][requestTransaction] transaction = %@", transaction);
-#endif
+// #endif
     if (self.callKeepCallController == nil) {
         self.callKeepCallController = [[CXCallController alloc] init];
     }
@@ -471,9 +471,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 + (void)endCallWithUUID:(NSString *)uuidString
                  reason:(int)reason
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][reportEndCallWithUUID] uuidString = %@ reason = %d", uuidString, reason);
-#endif
+// #endif
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     switch (reason) {
         case 1:
@@ -517,9 +517,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
                       payload:(NSDictionary * _Nullable)payload
         withCompletionHandler:(void (^_Nullable)(void))completion
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][reportNewIncomingCall] uuidString = %@", uuidString);
-#endif
+// #endif
     int _handleType = [CallKeep getHandleType:handleType];
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     CXCallUpdate *callUpdate = [[CXCallUpdate alloc] init];
@@ -593,9 +593,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 
 + (CXProviderConfiguration *)getProviderConfiguration:(NSDictionary*)settings
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][getProviderConfiguration]");
-#endif
+// #endif
     NSString *appName = @"Unknown App";
     if (settings != nil) {
         appName = settings[@"appName"];
@@ -635,12 +635,12 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 
 - (void)configureAudioSession
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][configureAudioSession] Activating audio session");
-#endif
+// #endif
     
     AVAudioSession* audioSession = [AVAudioSession sharedInstance];
-    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:nil];
+    [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:nil];
 
     [audioSession setMode:AVAudioSessionModeVoiceChat error:nil];
 
@@ -657,9 +657,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
             openURL:(NSURL *)url
             options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options NS_AVAILABLE_IOS(9_0)
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][application:openURL]");
-#endif
+// #endif
     /*
      NSString *handle = [url startCallHandle];
      if (handle != nil && handle.length > 0 ){
@@ -681,9 +681,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 continueUserActivity:(NSUserActivity *)userActivity
  restorationHandler:(void(^)(NSArray<id<UIUserActivityRestoring>> * __nullable restorableObjects))restorationHandler
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][application:continueUserActivity]");
-#endif
+// #endif
     INInteraction *interaction = userActivity.interaction;
     INPerson *contact;
     NSString *handle;
@@ -706,7 +706,7 @@ continueUserActivity:(NSUserActivity *)userActivity
             isVideoCall = [userActivity.activityType isEqualToString:INStartVideoCallIntentIdentifier];
         }
     } else {
-#endif
+ #endif
         //XCode 10 and below
         isAudioCall = [userActivity.activityType isEqualToString:INStartAudioCallIntentIdentifier];
         isVideoCall = [userActivity.activityType isEqualToString:INStartVideoCallIntentIdentifier];
@@ -749,9 +749,9 @@ continueUserActivity:(NSUserActivity *)userActivity
 #pragma mark - CXProviderDelegate
 
 - (void)providerDidReset:(CXProvider *)provider{
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][providerDidReset]");
-#endif
+// #endif
     //this means something big changed, so tell the JS. The JS should
     //probably respond by hanging up all calls.
     [self sendEventWithNameWrapper:CallKeepProviderReset body:@{}];
@@ -760,9 +760,9 @@ continueUserActivity:(NSUserActivity *)userActivity
 // Starting outgoing call
 - (void)provider:(CXProvider *)provider performStartCallAction:(CXStartCallAction *)action
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][CXProviderDelegate][provider:performStartCallAction]");
-#endif
+// #endif
     //do this first, audio sessions are flakey
     [self configureAudioSession];
     //tell the JS to actually make the call
@@ -774,9 +774,9 @@ continueUserActivity:(NSUserActivity *)userActivity
 // @deprecated
 -(void) reportUpdatedCall:(NSString *)uuidString contactIdentifier:(NSString *)contactIdentifier
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][reportUpdatedCall] contactIdentifier = %@", contactIdentifier);
-#endif
+// #endif
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     CXCallUpdate *callUpdate = [[CXCallUpdate alloc] init];
     callUpdate.localizedCallerName = contactIdentifier;
@@ -787,9 +787,9 @@ continueUserActivity:(NSUserActivity *)userActivity
 // Answering incoming call
 - (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][CXProviderDelegate][provider:performAnswerCallAction]");
-#endif
+// #endif
    // Make sure the audioSession is first set to the default settings, before we elevate the session priority
     NSError *error;
     AVAudioSession* audioSession = [AVAudioSession sharedInstance];
@@ -810,36 +810,36 @@ continueUserActivity:(NSUserActivity *)userActivity
 // Ending incoming call
 - (void)provider:(CXProvider *)provider performEndCallAction:(CXEndCallAction *)action
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][CXProviderDelegate][provider:performEndCallAction]");
-#endif
+// #endif
     [self sendEventWithNameWrapper:CallKeepPerformEndCallAction body:@{ @"callUUID": [action.callUUID.UUIDString lowercaseString] }];
     [action fulfill];
 }
 
 -(void)provider:(CXProvider *)provider performSetHeldCallAction:(CXSetHeldCallAction *)action
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][CXProviderDelegate][provider:performSetHeldCallAction]");
-#endif
+// #endif
     
     [self sendEventWithNameWrapper:CallKeepDidToggleHoldAction body:@{ @"hold": @(action.onHold), @"callUUID": [action.callUUID.UUIDString lowercaseString] }];
     [action fulfill];
 }
 
 - (void)provider:(CXProvider *)provider performPlayDTMFCallAction:(CXPlayDTMFCallAction *)action {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][CXProviderDelegate][provider:performPlayDTMFCallAction]");
-#endif
+// #endif
     [self sendEventWithNameWrapper:CallKeepPerformPlayDTMFCallAction body:@{ @"digits": action.digits, @"callUUID": [action.callUUID.UUIDString lowercaseString] }];
     [action fulfill];
 }
 
 -(void)provider:(CXProvider *)provider performSetMutedCallAction:(CXSetMutedCallAction *)action
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][CXProviderDelegate][provider:performSetMutedCallAction]");
-#endif
+// #endif
     
     [self sendEventWithNameWrapper:CallKeepDidPerformSetMutedCallAction body:@{ @"muted": @(action.muted), @"callUUID": [action.callUUID.UUIDString lowercaseString] }];
     [action fulfill];
@@ -847,16 +847,16 @@ continueUserActivity:(NSUserActivity *)userActivity
 
 - (void)provider:(CXProvider *)provider timedOutPerformingAction:(CXAction *)action
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][CXProviderDelegate][provider:timedOutPerformingAction]");
-#endif
+// #endif
 }
 
 - (void)provider:(CXProvider *)provider didActivateAudioSession:(AVAudioSession *)audioSession
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][CXProviderDelegate][provider:didActivateAudioSession]");
-#endif
+// #endif
     NSDictionary *userInfo
     = @{
         AVAudioSessionInterruptionTypeKey: [NSNumber numberWithInt:AVAudioSessionInterruptionTypeEnded],
@@ -870,9 +870,9 @@ continueUserActivity:(NSUserActivity *)userActivity
 
 - (void)provider:(CXProvider *)provider didDeactivateAudioSession:(AVAudioSession *)audioSession
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[CallKeep][CXProviderDelegate][provider:didDeactivateAudioSession]");
-#endif
+// #endif
     [self sendEventWithNameWrapper:CallKeepDidDeactivateAudioSession body:@{}];
 }
 

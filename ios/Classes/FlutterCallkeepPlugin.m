@@ -34,9 +34,9 @@ static id _instance;
                  viewController:(UIViewController *)viewController
                    withTextures:(NSObject<FlutterTextureRegistry> *)textures {
     
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[FlutterCallkeepPlugin][init]");
-#endif
+// #endif
     if (self = [super init]) {
         _callKeep = [CallKeep allocWithZone: nil];
         _callKeep.eventChannel = [FlutterMethodChannel
@@ -48,9 +48,9 @@ static id _instance;
 
 - (void)dealloc
 {
-#ifdef DEBUG
+// #ifdef DEBUG
     NSLog(@"[FlutterCallkeepPlugin][dealloc]");
-#endif
+// #endif
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     _callKeep = nil;
 }
