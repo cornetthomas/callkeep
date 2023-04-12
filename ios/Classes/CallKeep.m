@@ -250,12 +250,15 @@ static CXProvider* sharedProvider;
     BOOL hasVideo = [dic[@"has_video"] boolValue];
     NSString *callerIdType = dic[@"caller_id_type"];
    
+    NSLog(@"didReceiveIncomingPushWithPayload uuid = %@", uuid);
 
     if( uuid == nil) {
         uuid = [self createUUID];
     }
 
     //NSDictionary *extra = payload.dictionaryPayload[@"extra"];
+
+    NSLog(@"didReceiveIncomingPushWithPayload ready to report call");
 
     [CallKeep reportNewIncomingCall:uuid
                              handle:callerId
@@ -550,6 +553,8 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
             }
         }
         if (completion != nil) {
+            
+            
             completion();
         }
     }];
