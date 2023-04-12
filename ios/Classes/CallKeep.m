@@ -25,11 +25,15 @@ static NSString *const CallKeepCheckReachability = @"CallKeepCheckReachability";
 static NSString *const CallKeepDidLoadWithEvents = @"CallKeepDidLoadWithEvents";
 static NSString *const CallKeepPushKitToken = @"CallKeepPushKitToken";
 
+ 
 @implementation CallKeep
 {
     NSOperatingSystemVersion _version;
     bool _hasListeners;
     NSMutableArray *_delayedEvents;
+    dispatch_queue_t voipQueue;
+    PKPushRegistry* voipRegistry;
+
 }
 
 - (FlutterMethodChannel *)eventChannel
@@ -49,6 +53,8 @@ static CXProvider* sharedProvider;
 // #ifdef DEBUG
     NSLog(@"[CallKeep][init]");
 // #endif
+    voipQueue = dispatch_queue_create("com.heymdall.VoipQueue", DISPATCH_QUEUE_SERIAL);
+
     if (self = [super init]) {
         _delayedEvents = [NSMutableArray array];
     }
@@ -195,7 +201,7 @@ static CXProvider* sharedProvider;
 
 -(void)voipRegistration
 {
-    PKPushRegistry* voipRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
+    voipRegistry = [[PKPushRegistry alloc] initWithQueue:voipQueue];
     voipRegistry.delegate = self;
     voipRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
 }
