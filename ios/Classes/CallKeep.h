@@ -27,7 +27,7 @@
 continueUserActivity:(NSUserActivity * _Nonnull)userActivity
   restorationHandler:(void(^ _Nonnull)(NSArray<id<UIUserActivityRestoring>> * __nullable restorableObjects))restorationHandler;
 
-+ (void)reportNewIncomingCall:(NSString * _Nonnull)uuidString
+-(void)reportNewIncomingCall:(NSString * _Nonnull)uuidString
                        handle:(NSString * _Nonnull)handle
                    handleType:(NSString * _Nonnull)handleType
                      hasVideo:(BOOL)hasVideo
@@ -44,6 +44,7 @@ continueUserActivity:(NSUserActivity * _Nonnull)userActivity
                       payload:(NSDictionary * _Nullable)payload
         withCompletionHandler:(void (^_Nullable)(void))completion;
 
+- (void)didUpdatePushCredentials:(PKPushCredentials *_Nullable)pushCredentials forType:(PKPushType _Nullable )type;
 + (void)endCallWithUUID:(NSString * _Nonnull)uuidString
                  reason:(int)reason;
 

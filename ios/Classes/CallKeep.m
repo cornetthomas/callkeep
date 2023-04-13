@@ -83,6 +83,8 @@ static CXProvider* sharedProvider;
     sharedProvider = nil;
 }
 
+
+
 - (BOOL)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     NSString *method = call.method;
     NSDictionary* argsMap = call.arguments;
@@ -187,8 +189,10 @@ static CXProvider* sharedProvider;
     self.callKeepCallController = [[CXCallController alloc] init];
     NSDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:options];
     // Store settings in NSUserDefault
-    [[NSUserDefaults standardUserDefaults] setObject:settings forKey:@"CallKeepSettings"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    if(settings != nil) {
+        [[NSUserDefaults standardUserDefaults] setObject:settings forKey:@"CallKeepSettings"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
     
     [CallKeep initCallKitProvider];
     
@@ -201,12 +205,25 @@ static CXProvider* sharedProvider;
 
 -(void)voipRegistration
 {
-    voipRegistry = [[PKPushRegistry alloc] initWithQueue:voipQueue];
+    NSLog(@"[CallKeep][voipRegistration] setting VoipRegistration");
+    voipRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
     voipRegistry.delegate = self;
     voipRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
 }
 
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)pushCredentials forType:(PKPushType)type {
+    const unsigned *tokenBytes = [pushCredentials.token bytes];
+    NSString *hexToken = [NSString stringWithFormat:@"%08x%08x%08x%08x%08x%08x%08x%08x",
+                      ntohl(tokenBytes[0]), ntohl(tokenBytes[1]), ntohl(tokenBytes[2]),
+                      ntohl(tokenBytes[3]), ntohl(tokenBytes[4]), ntohl(tokenBytes[5]),
+                      ntohl(tokenBytes[6]), ntohl(tokenBytes[7])];
+    
+    NSLog(@"\n[VoIP Token]: %@\n\n",hexToken);
+    
+    [self sendEventWithNameWrapper:CallKeepPushKitToken body:@{ @"token": hexToken }];
+}
+
+-(void)didUpdatePushCredentials:(PKPushCredentials *)pushCredentials forType:(PKPushType)type {
     const unsigned *tokenBytes = [pushCredentials.token bytes];
     NSString *hexToken = [NSString stringWithFormat:@"%08x%08x%08x%08x%08x%08x%08x%08x",
                       ntohl(tokenBytes[0]), ntohl(tokenBytes[1]), ntohl(tokenBytes[2]),
@@ -229,7 +246,7 @@ static CXProvider* sharedProvider;
 
 - (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(PKPushType)type withCompletionHandler:(nonnull void (^)(void))completion {
     // Process the received push
-    NSLog(@"didReceiveIncomingPushWithPayload payload = %@", payload.type);
+    NSLog(@"[CallKeep][PushRegistry] didReceiveIncomingPushWithPayload payload = %@", payload.type);
     /* payload example.
     {
         "uuid": "xxxxx-xxxxx-xxxxx-xxxxx",
@@ -256,7 +273,7 @@ static CXProvider* sharedProvider;
     BOOL hasVideo = [dic[@"has_video"] boolValue];
     NSString *callerIdType = dic[@"caller_id_type"];
    
-    NSLog(@"didReceiveIncomingPushWithPayload uuid = %@", uuid);
+    NSLog(@"[CallKeep][PushRegistry] didReceiveIncomingPushWithPayload uuid = %@", uuid);
 
     if( uuid == nil) {
         uuid = [self createUUID];
@@ -264,7 +281,7 @@ static CXProvider* sharedProvider;
 
     //NSDictionary *extra = payload.dictionaryPayload[@"extra"];
 
-    NSLog(@"didReceiveIncomingPushWithPayload ready to report call");
+    NSLog(@"[CallKeep][PushRegistry] didReceiveIncomingPushWithPayload ready to report call");
 
     [CallKeep reportNewIncomingCall:uuid
                              handle:callerId
@@ -309,6 +326,7 @@ static CXProvider* sharedProvider;
                    hasVideo:(BOOL)hasVideo
         localizedCallerName:(NSString * _Nullable)localizedCallerName
 {
+    NSLog(@"[CallKeep][displayIncomingCall] uuidString = %@", uuidString);
     [CallKeep reportNewIncomingCall: uuidString handle:handle handleType:handleType hasVideo:hasVideo localizedCallerName:localizedCallerName fromPushKit: NO payload:nil withCompletionHandler:nil];
 }
 
@@ -506,7 +524,7 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
     }
 }
 
-+ (void)reportNewIncomingCall:(NSString *)uuidString
+- (void)reportNewIncomingCall:(NSString *)uuidString
                        handle:(NSString *)handle
                    handleType:(NSString *)handleType
                      hasVideo:(BOOL)hasVideo
@@ -541,8 +559,11 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
     callUpdate.localizedCallerName = localizedCallerName;
     
     [CallKeep initCallKitProvider];
+    
     [sharedProvider reportNewIncomingCallWithUUID:uuid update:callUpdate completion:^(NSError * _Nullable error) {
+        
         CallKeep *callKeep = [CallKeep allocWithZone: nil];
+        
         [callKeep sendEventWithNameWrapper:CallKeepDidDisplayIncomingCall body:@{
             @"error": error && error.localizedDescription ? error.localizedDescription : @"",
             @"callUUID": uuidString,
@@ -559,14 +580,12 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
             }
         }
         if (completion != nil) {
-            
-            
-            completion();
+           completion();
         }
     }];
 }
 
-+ (void)reportNewIncomingCall:(NSString *)uuidString
+- (void)reportNewIncomingCall:(NSString *)uuidString
                        handle:(NSString *)handle
                    handleType:(NSString *)handleType
                      hasVideo:(BOOL)hasVideo
@@ -651,9 +670,9 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
 // #endif
     
     AVAudioSession* audioSession = [AVAudioSession sharedInstance];
-    [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:nil];
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:nil];
 
-    [audioSession setMode:AVAudioSessionModeVoiceChat error:nil];
+    [audioSession setMode:AVAudioSessionModeVideoChat error:nil];
 
     double sampleRate = 44100.0;
     [audioSession setPreferredSampleRate:sampleRate error:nil];
@@ -661,7 +680,8 @@ contactIdentifier:(NSString * _Nullable)contactIdentifier
     NSTimeInterval bufferDuration = .005;
     [audioSession setPreferredIOBufferDuration:bufferDuration error:nil];
     [audioSession setActive:YES error:nil];
-
+    
+    NSLog(@"[CallKeep][configureAudioSession] Activating audio session - completed");
 }
 
 + (BOOL)application:(UIApplication *)application
@@ -810,7 +830,7 @@ continueUserActivity:(NSUserActivity *)userActivity
         NSLog(@"ERROR: %@", error);
     }
     
-    [self configureAudioSession];
+    [self configureAudioSession]; // I think this shouldn't be here
     [self sendEventWithNameWrapper:CallKeepPerformAnswerCallAction body:@{ @"callUUID": [action.callUUID.UUIDString lowercaseString] }];
     
     // Delay fulfil, so connection can be properly setup. 
