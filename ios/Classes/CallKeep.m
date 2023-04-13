@@ -795,7 +795,7 @@ continueUserActivity:(NSUserActivity *)userActivity
     NSLog(@"[CallKeep][CXProviderDelegate][provider:performStartCallAction]");
 // #endif
     //do this first, audio sessions are flakey
-    [self configureAudioSession];
+    // [self configureAudioSession];
     //tell the JS to actually make the call
     [self sendEventWithNameWrapper:CallKeepDidReceiveStartCallAction body:@{ @"callUUID": [action.callUUID.UUIDString lowercaseString], @"handle": action.handle.value }];
     [action fulfill];
@@ -830,7 +830,7 @@ continueUserActivity:(NSUserActivity *)userActivity
         NSLog(@"ERROR: %@", error);
     }
     
-    [self configureAudioSession]; // I think this shouldn't be here
+    // [self configureAudioSession]; // I think this shouldn't be here
     [self sendEventWithNameWrapper:CallKeepPerformAnswerCallAction body:@{ @"callUUID": [action.callUUID.UUIDString lowercaseString] }];
     
     // Delay fulfil, so connection can be properly setup. 
@@ -895,7 +895,7 @@ continueUserActivity:(NSUserActivity *)userActivity
     };
     [[NSNotificationCenter defaultCenter] postNotificationName:AVAudioSessionInterruptionNotification object:nil userInfo:userInfo];
     
-    [self configureAudioSession];
+  //  [self configureAudioSession];
     [self sendEventWithNameWrapper:CallKeepDidActivateAudioSession body:@{}];
 }
 
