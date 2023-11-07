@@ -621,10 +621,12 @@ public class CallKeepModule {
 
     private Boolean hasPermissions() {
         boolean hasPermissions = true;
-        for (String permission : permissions) {
-            int permissionCheck = ContextCompat.checkSelfPermission(_currentActivity, permission);
-            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                hasPermissions = false;
+        if(_currentActivity != null) {
+            for (String permission : permissions) {
+                int permissionCheck = ContextCompat.checkSelfPermission(_currentActivity, permission);
+                if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                    hasPermissions = false;
+                }
             }
         }
 
