@@ -648,11 +648,13 @@ public class CallKeepModule {
 
     private Boolean hasPermissions() {
         boolean hasPermissions = true;
+        if(_currentActivity != null) {
         for (String permission : permissions) {
             int permissionCheck = ContextCompat.checkSelfPermission(_currentActivity, permission);
             if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
                 hasPermissions = false;
             }
+        }
         }
 
         return hasPermissions;
