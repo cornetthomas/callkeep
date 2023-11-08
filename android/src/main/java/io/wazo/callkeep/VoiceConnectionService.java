@@ -308,7 +308,16 @@ public class VoiceConnectionService extends ConnectionService {
     private Connection createConnection(ConnectionRequest request) {
         Bundle extras = request.getExtras();
         HashMap<String, String> extrasMap = this.bundleToMap(extras);
-        extrasMap.put(EXTRA_CALL_NUMBER, request.getAddress().toString());
+
+        Uri address = request.getAddress();
+        // Fix: generates null error in some cases
+        if(address != null) {
+             extrasMap.put(EXTRA_CALL_NUMBER, address.toString());
+        } else {
+             extrasMap.put(EXTRA_CALL_NUMBER, "00");
+        }
+       
+        
         VoiceConnection connection = new VoiceConnection(this, extrasMap);
         connection.setConnectionCapabilities(Connection.CAPABILITY_MUTE | Connection.CAPABILITY_SUPPORT_HOLD);
 
